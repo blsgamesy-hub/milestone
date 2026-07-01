@@ -1,4 +1,4 @@
-const CACHE = "milestone-v3";
+const CACHE = "milestone-v4";
 const ASSETS = [
   "./milestone.html",
   "./manifest_milestone.json",
