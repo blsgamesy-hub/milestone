@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="이정표">
+<meta name="theme-color" content="#E9EDEA">
+<link rel="manifest" href="./manifest_milestone.json">
+<link rel="apple-touch-icon" href="./icon_192_milestone.png">
+<title>이정표 길</title>
+<style>
+  :root{
+    --mist:#E9EDEA;
+    --mist-deep:#F4F6F3;
+    --card:#FBFCFA;
+    --stone:#8A928C;
+    --stone-deep:#6F776F;
+    --moss:#7A9B76;
+    --moss-deep:#5E7D5A;
+    --lantern:#DF9F4E;
+    --lantern-soft:#E9B872;
+    --ink:#39413B;
+    --ink-soft:#78827A;
+    --fog:#AAB4AC;
+    --line:#DBE0DB;
+    --radius:16px;
+    --shadow:0 1px 2px rgba(57,65,59,.05), 0 8px 24px rgba(57,65,59,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:'Apple SD Gothic Neo','Pretendard','Malgun Gothic',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    background:var(--mist);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    /* 위쪽 옅은 안개 그라디언트 */
+    background-image:linear-gradient(180deg,#EEF1EE 0%,var(--mist) 40%);
+    background-attachment:fixed;
+  }
+  #app{max-width:560px;margin:0 auto;min-height:100%;
+    padding:calc(env(safe-area-inset-top) + 18px) 20px calc(env(safe-area-inset-bottom) + 40px);
+    display:flex;flex-direction:column}
+
+  /* ---- 상단 히어로 (풀블리드) ---- */
+  .hero{position:relative;height:184px;overflow:hidden;
+    margin:calc(-1*(env(safe-area-inset-top) + 18px)) -20px 20px;
+    border-radius:0;box-shadow:0 6px 20px rgba(57,65,59,.08)}
+  .hero svg.scene{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .hero .cap{position:absolute;left:22px;bottom:18px;z-index:2}
+  .hero h1{font-size:24px;font-weight:700;letter-spacing:.05em;color:#fff;
+    text-shadow:0 1px 10px rgba(40,52,42,.4)}
+  .hero .sub{display:block;font-size:10.5px;color:rgba(255,255,255,.82);letter-spacing:.18em;
+    margin-top:3px;text-shadow:0 1px 8px rgba(40,52,42,.35)}
+
+  /* 목표 칩 줄 */
+  .goalbar{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:6px;scrollbar-width:none}
+  .goalbar::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;padding:7px 14px;border-radius:999px;border:1px solid var(--line);
+    background:var(--mist-deep);color:var(--ink-soft);font-size:13px;font-weight:500;cursor:pointer;
+    white-space:nowrap;transition:all .18s ease}
+  .chip.active{background:var(--ink);color:#F4F6F3;border-color:var(--ink)}
+  .chip.add{border-style:dashed;color:var(--fog);font-weight:600}
+
+  /* 목표 헤더 */
+  .goalhead{margin:14px 2px 8px}
+  .goalhead .title{font-size:26px;font-weight:700;letter-spacing:-.01em;line-height:1.25;
+    background:none;border:none;color:var(--ink);width:100%;font-family:inherit;resize:none;overflow:hidden}
+  .goalhead .title:focus{outline:none}
+  .goalmeta{display:flex;align-items:center;gap:12px;margin-top:8px;flex-wrap:wrap}
+  .deadline-btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-soft);
+    background:var(--mist-deep);border:1px solid var(--line);border-radius:999px;padding:5px 11px;cursor:pointer}
+  .deadline-btn.past{color:var(--fog);background:transparent;border-style:dashed}
+  .deadline-btn .dot{width:5px;height:5px;border-radius:50%;background:var(--moss)}
+  .deadline-btn.past .dot{background:var(--fog)}
+  .progress-note{font-size:12.5px;color:var(--fog)}
+  .goal-del{margin-left:auto;font-size:12px;color:var(--fog);background:none;border:none;cursor:pointer;padding:4px}
+
+  /* ---- 이정표 길 ---- */
+  .path{position:relative;margin:22px 0 8px;padding-left:6px}
+  .stone{position:relative;padding-left:44px;padding-bottom:16px}
+  /* 세로 길 선 */
+  .stone::before{content:"";position:absolute;left:13px;top:26px;bottom:-4px;width:2px;
+    background:var(--line)}
+  .stone:last-child::before{display:none}
+  .stone.passed::before{background:var(--moss)}
+  /* 노드 (이정표 머리) */
+  .node{position:absolute;left:0;top:2px;width:28px;height:28px;border-radius:50%;
+    background:var(--mist-deep);border:2px solid var(--line);display:flex;align-items:center;
+    justify-content:center;cursor:pointer;transition:all .2s ease;z-index:2}
+  .node svg{width:14px;height:14px}
+  .stone.passed .node{background:var(--moss);border-color:var(--moss)}
+  .stone.passed .node svg{stroke:#fff}
+  .stone.here .node{background:var(--lantern);border-color:var(--lantern);
+    box-shadow:0 0 0 6px rgba(223,159,78,.16),0 0 22px 4px rgba(223,159,78,.3)}
+  .stone.here .node svg{stroke:#fff}
+  .stone.ahead .node{background:var(--mist-deep);border-color:var(--line)}
+
+  /* 지금 여기 등불 은은한 맥동 */
+  @keyframes glow{0%,100%{box-shadow:0 0 0 6px rgba(223,159,78,.14),0 0 18px 3px rgba(223,159,78,.24)}
+    50%{box-shadow:0 0 0 7px rgba(223,159,78,.2),0 0 26px 6px rgba(223,159,78,.36)}}
+  .stone.here .node{animation:glow 3.2s ease-in-out infinite}
+
+  /* 카드 */
+  .m-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 16px;box-shadow:var(--shadow);transition:opacity .25s ease}
+  .stone.ahead .m-card{opacity:.52}
+  .stone.ahead .m-card:focus-within,.stone.ahead:hover .m-card{opacity:.9}
+  .stone.here .m-card{border-color:rgba(223,159,78,.4)}
+  .m-top{display:flex;align-items:flex-start;gap:10px}
+  .m-title{flex:1;font-size:15.5px;font-weight:600;color:var(--ink);background:none;border:none;
+    font-family:inherit;width:100%;resize:none;overflow:hidden;line-height:1.4}
+  .m-title:focus{outline:none}
+  .stone.passed .m-title{color:var(--ink-soft);text-decoration:line-through;text-decoration-color:var(--fog)}
+  .here-tag{flex:0 0 auto;font-size:10.5px;font-weight:700;letter-spacing:.08em;color:var(--lantern);
+    background:rgba(223,159,78,.12);border-radius:999px;padding:3px 8px;margin-top:1px}
+
+  .m-foot{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .mini{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink-soft);
+    background:none;border:none;cursor:pointer;padding:3px 4px;border-radius:8px}
+  .mini:hover{background:var(--mist-deep)}
+  .mini.dl{color:var(--moss-deep)}
+  .mini.dl.past{color:var(--fog)}
+  .mini svg{width:13px;height:13px}
+  .m-del{margin-left:auto;color:var(--fog)}
+
+  /* 작은 행동 (펼침) */
+  .subs{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);display:none}
+  .subs.open{display:block}
+  .sub{display:flex;align-items:center;gap:9px;padding:5px 0}
+  .sub .sbox{width:16px;height:16px;border-radius:5px;border:1.6px solid var(--line);flex:0 0 auto;
+    cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .sub .sbox.on{background:var(--moss);border-color:var(--moss)}
+  .sub .sbox svg{width:10px;height:10px;stroke:#fff}
+  .sub input{flex:1 1 0;min-width:0;font-size:13.5px;color:var(--ink);background:none;border:none;font-family:inherit}
+  .sub input:focus{outline:none}
+  .sub input.done{color:var(--fog);text-decoration:line-through}
+  .sub .x{flex:0 0 auto;color:var(--fog);background:none;border:none;cursor:pointer;font-size:15px;padding:3px 4px}
+  .sub-add{font-size:12.5px;color:var(--ink-soft);background:none;border:none;cursor:pointer;
+    padding:6px 0;margin-top:2px}
+
+  /* 이정표 추가 */
+  .add-stone{position:relative;padding-left:44px}
+  .add-stone::before{content:"";position:absolute;left:13px;top:-24px;height:26px;width:2px;background:var(--line)}
+  .add-stone .node{background:transparent;border-style:dashed;border-color:var(--fog)}
+  .add-stone .node svg{stroke:var(--fog)}
+  .add-btn{width:100%;text-align:left;background:transparent;border:1px dashed var(--line);
+    border-radius:var(--radius);padding:13px 16px;color:var(--fog);font-size:14px;font-weight:500;
+    cursor:pointer;font-family:inherit}
+  .add-btn:hover{border-color:var(--stone);color:var(--ink-soft)}
+
+  /* 빈 상태 */
+  .empty{text-align:center;padding:60px 20px;margin:auto 0}
+  .empty .ic{width:56px;height:56px;margin:0 auto 20px;opacity:.7}
+  .empty h2{font-size:19px;font-weight:700;margin-bottom:8px}
+  .empty p{font-size:14px;color:var(--ink-soft);margin-bottom:24px;line-height:1.6}
+  .btn-primary{background:var(--ink);color:#F4F6F3;border:none;border-radius:12px;padding:13px 26px;
+    font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+
+  /* 목표 완주 배너 */
+  .done-banner{background:linear-gradient(135deg,rgba(122,155,118,.14),rgba(223,159,78,.12));
+    border:1px solid rgba(122,155,118,.3);border-radius:var(--radius);padding:16px 18px;margin-top:8px;
+    font-size:14px;color:var(--moss-deep);font-weight:600;display:flex;align-items:center;gap:10px}
+
+  input[type=date]{position:absolute;inset:0;width:100%;height:100%;opacity:0;
+    cursor:pointer;border:none;background:none}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const KEY="milestone_path_v1";
+let state={goals:[],active:null};
+const uid=()=>Math.random().toString(36).slice(2,9);
+
+function load(){
+  try{const r=localStorage.getItem(KEY);if(r){state=JSON.parse(r);}}catch(e){}
+  if(!state.goals)state.goals=[];
+  if(!state.active && state.goals[0])state.active=state.goals[0].id;
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+
+// --- 날짜 유틸 ---
+function fmt(d){
+  if(!d)return"";
+  const dt=new Date(d+"T00:00:00");
+  return (dt.getMonth()+1)+"월 "+dt.getDate()+"일";
+}
+function isPast(d){
+  if(!d)return false;
+  const t=new Date();t.setHours(0,0,0,0);
+  return new Date(d+"T00:00:00") < t;
+}
+function ddayText(d){
+  if(!d)return"";
+  const t=new Date();t.setHours(0,0,0,0);
+  const target=new Date(d+"T00:00:00");
+  const diff=Math.round((target-t)/86400000);
+  if(diff===0)return"오늘";
+  if(diff>0)return"D-"+diff;
+  return"지남";
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+// 안개 낀 오솔길 풍경 (외부 이미지 없이 SVG로 그림)
+const SCENE_SVG=`<svg class="scene" viewBox="0 0 560 184" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#EDF1EE"/><stop offset="0.5" stop-color="#E6ECE6"/>
+    <stop offset="1" stop-color="#DDE6DD"/>
+  </linearGradient>
+  <radialGradient id="lglow" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#F4CE8E" stop-opacity="0.95"/>
+    <stop offset="0.4" stop-color="#E9B872" stop-opacity="0.55"/>
+    <stop offset="1" stop-color="#E9B872" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="pathg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#D9CFBB" stop-opacity="0.45"/>
+    <stop offset="1" stop-color="#E3DAC7"/>
+  </linearGradient>
+  <linearGradient id="capshade" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#3a4a3a" stop-opacity="0"/>
+    <stop offset="1" stop-color="#2f3d30" stop-opacity="0.36"/>
+  </linearGradient>
+</defs>
+<rect width="560" height="184" fill="url(#sky)"/>
+<!-- 원경 언덕 -->
+<path d="M0,88 C130,70 250,96 370,83 C450,74 520,89 560,80 L560,184 L0,184 Z" fill="#C7D2C4" opacity="0.55"/>
+<!-- 안개 띠 -->
+<ellipse cx="180" cy="98" rx="210" ry="22" fill="#ffffff" opacity="0.28"/>
+<ellipse cx="440" cy="106" rx="170" ry="18" fill="#ffffff" opacity="0.22"/>
+<!-- 중경 언덕 -->
+<path d="M0,118 C110,102 210,124 330,112 C430,102 500,120 560,110 L560,184 L0,184 Z" fill="#AABBA6" opacity="0.82"/>
+<!-- 등불 후광 -->
+<circle cx="300" cy="84" r="36" fill="url(#lglow)"/>
+<!-- 이정표 (원경, 길 끝) -->
+<rect x="296.3" y="80" width="7.4" height="28" rx="3" fill="#6E766E"/>
+<circle cx="300" cy="80" r="4.4" fill="#F2C888"/>
+<circle cx="300" cy="80" r="2.2" fill="#FFF0D6"/>
+<!-- 근경 언덕 -->
+<path d="M0,148 C120,136 250,152 360,143 C450,136 520,148 560,144 L560,184 L0,184 Z" fill="#7F9A7C"/>
+<!-- 구불구불한 길 -->
+<path d="M240,184 C256,166 248,154 264,138 C274,127 268,119 279,107 C284,101 289,100 293,103 C288,113 290,121 283,135 C273,152 280,168 302,184 Z" fill="url(#pathg)"/>
+<!-- 텍스트 가독성용 하단 음영 -->
+<rect x="0" y="130" width="340" height="54" fill="url(#capshade)"/>
+</svg>`;
+
+// --- 아이콘 ---
+const IC={
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  dot:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  branch:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>',
+  lantern:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/></svg>'
+};
+
+// --- 상태 계산 ---
+function goalById(id){return state.goals.find(g=>g.id===id);}
+function hereIndex(g){
+  // 완료 안 된 첫 이정표 = 지금 여기
+  return g.milestones.findIndex(m=>!m.done);
+}
+
+// --- 렌더 ---
+function render(){
+  const app=document.getElementById("app");
+  app.innerHTML="";
+
+  // 히어로 (안개 낀 오솔길 풍경)
+  const hero=el("div","hero");
+  hero.innerHTML=SCENE_SVG+
+    '<div class="cap"><h1>이정표 길</h1><span class="sub">MILESTONE PATH</span></div>';
+  app.appendChild(hero);
+
+  // 목표 칩 줄
+  const bar=el("div","goalbar");
+  state.goals.forEach(g=>{
+    const c=el("button","chip"+(g.id===state.active?" active":""));
+    c.textContent=g.title||"(제목 없음)";
+    c.onclick=()=>{state.active=g.id;save();render();};
+    bar.appendChild(c);
+  });
+  const addChip=el("button","chip add");
+  addChip.textContent="+ 목표";
+  addChip.onclick=addGoal;
+  bar.appendChild(addChip);
+  app.appendChild(bar);
+
+  const g=goalById(state.active);
+  if(!g){renderEmpty(app);return;}
+
+  // 목표 헤더
+  const head=el("div","goalhead");
+  const title=document.createElement("textarea");
+  title.className="title";title.rows=1;title.value=g.title;title.placeholder="목표 이름";
+  title.oninput=()=>{g.title=title.value;autoGrow(title);save();
+    const chip=[...bar.querySelectorAll(".chip")].find((c,i)=>state.goals[i]&&state.goals[i].id===g.id);
+    if(chip)chip.textContent=title.value||"(제목 없음)";};
+  head.appendChild(title);
+
+  const meta=el("div","goalmeta");
+  meta.appendChild(deadlineControl(g,true));
+  const total=g.milestones.length, done=g.milestones.filter(m=>m.done).length;
+  if(total>0){
+    const note=el("span","progress-note");
+    note.textContent=done+" / "+total+" 이정표";
+    meta.appendChild(note);
+  }
+  const del=el("button","goal-del");del.textContent="목표 삭제";
+  del.onclick=()=>{if(confirm("이 목표를 삭제할까요?")){
+    state.goals=state.goals.filter(x=>x.id!==g.id);
+    state.active=state.goals[0]?state.goals[0].id:null;save();render();}};
+  meta.appendChild(del);
+  head.appendChild(meta);
+  app.appendChild(head);
+  requestAnimationFrame(()=>autoGrow(title));
+
+  // 이정표 길
+  const path=el("div","path");
+  const hi=hereIndex(g);
+  g.milestones.forEach((m,i)=>{
+    let cls="stone ";
+    if(m.done)cls+="passed";
+    else if(i===hi)cls+="here";
+    else cls+="ahead";
+    path.appendChild(stoneEl(g,m,i,cls,i===hi));
+  });
+
+  // 이정표 추가
+  const addWrap=el("div","add-stone");
+  const node=el("div","node");node.innerHTML=IC.plus;
+  addWrap.appendChild(node);
+  const addBtn=el("button","add-btn");
+  addBtn.textContent="이정표 세우기";
+  addBtn.onclick=()=>{
+    g.milestones.push({id:uid(),title:"",deadline:null,done:false,expanded:false,subs:[]});
+    save();render();
+    // 새 카드 포커스
+    setTimeout(()=>{const ins=document.querySelectorAll(".m-title");if(ins.length)ins[ins.length-1].focus();},60);
+  };
+  addWrap.appendChild(addBtn);
+  path.appendChild(addWrap);
+  app.appendChild(path);
+
+  // 완주 배너
+  if(g.milestones.length>0 && g.milestones.every(m=>m.done)){
+    const b=el("div","done-banner");
+    b.innerHTML='<span style="font-size:18px">🏁</span> 이 길의 이정표를 모두 지나왔어요.';
+    app.appendChild(b);
+  }
+}
+
+function stoneEl(g,m,i,cls,isHere){
+  const wrap=el("div",cls);
+
+  // 노드 (클릭 = 완료 토글)
+  const node=el("div","node");
+  node.innerHTML = m.done?IC.check:(isHere?IC.lantern:IC.dot);
+  node.onclick=()=>{m.done=!m.done;if(m.done)m.expanded=false;save();render();};
+  wrap.appendChild(node);
+
+  // 카드
+  const card=el("div","m-card");
+  const top=el("div","m-top");
+  const ta=document.createElement("textarea");
+  ta.className="m-title";ta.rows=1;ta.value=m.title;ta.placeholder="이정표 이름";
+  ta.oninput=()=>{m.title=ta.value;autoGrow(ta);save();};
+  top.appendChild(ta);
+  if(isHere){const tag=el("span","here-tag");tag.textContent="지금 여기";top.appendChild(tag);}
+  card.appendChild(top);
+  requestAnimationFrame(()=>autoGrow(ta));
+
+  // 푸터
+  const foot=el("div","m-foot");
+  // 기한
+  foot.appendChild(deadlineControl(m,false));
+  // 쪼개기
+  const branch=el("button","mini");
+  const subDone=m.subs.filter(s=>s.done).length;
+  branch.innerHTML=IC.branch+"<span>쪼개기"+(m.subs.length?" · "+subDone+"/"+m.subs.length:"")+"</span>";
+  branch.onclick=()=>{m.expanded=!m.expanded;save();render();};
+  foot.appendChild(branch);
+  // 삭제
+  const del=el("button","mini m-del");del.textContent="삭제";
+  del.onclick=()=>{g.milestones=g.milestones.filter(x=>x.id!==m.id);save();render();};
+  foot.appendChild(del);
+  card.appendChild(foot);
+
+  // 작은 행동
+  const subs=el("div","subs"+(m.expanded?" open":""));
+  m.subs.forEach(s=>{
+    const row=el("div","sub");
+    const box=el("div","sbox"+(s.done?" on":""));
+    box.innerHTML=s.done?IC.check:"";
+    box.onclick=()=>{s.done=!s.done;save();render();};
+    row.appendChild(box);
+    const inp=document.createElement("input");
+    inp.value=s.title;inp.placeholder="작은 행동";inp.className=s.done?"done":"";
+    inp.oninput=()=>{s.title=inp.value;save();};
+    row.appendChild(inp);
+    const x=el("button","x");x.textContent="×";
+    x.onclick=()=>{m.subs=m.subs.filter(y=>y.id!==s.id);save();render();};
+    row.appendChild(x);
+    subs.appendChild(row);
+  });
+  const sadd=el("button","sub-add");sadd.textContent="+ 작은 행동";
+  sadd.onclick=()=>{m.subs.push({id:uid(),title:"",done:false});save();render();
+    setTimeout(()=>{const ins=subs.querySelectorAll("input");if(ins.length)ins[ins.length-1].focus();},50);};
+  subs.appendChild(sadd);
+  card.appendChild(subs);
+
+  wrap.appendChild(card);
+  return wrap;
+}
+
+// 기한 컨트롤 (참고선: 지나도 경고 없이 조용히)
+function deadlineControl(obj,isGoal){
+  const past=isPast(obj.deadline);
+  const btn=el("button",isGoal?("deadline-btn"+(past?" past":"")):("mini dl"+(past?" past":"")));
+  if(obj.deadline){
+    const label=(isGoal?"":"")+(past?"지난 ":"")+fmt(obj.deadline);
+    btn.innerHTML=(isGoal?'<span class="dot"></span>':IC.cal)+"<span>"+label+"</span>";
+  }else{
+    btn.innerHTML=(isGoal?'<span class="dot"></span>':IC.cal)+"<span>"+(isGoal?"기한 없음":"기한")+"</span>";
+  }
+  // 숨은 date input (버튼 위에 투명하게 덮여 탭하면 네이티브 달력)
+  const di=document.createElement("input");
+  di.type="date";if(obj.deadline)di.value=obj.deadline;
+  di.setAttribute("aria-label","기한 선택");
+  di.onchange=()=>{obj.deadline=di.value||null;save();render();};
+  di.oncontextmenu=(e)=>{e.preventDefault();obj.deadline=null;save();render();return false;};
+  btn.appendChild(di);
+  return btn;
+}
+
+function renderEmpty(app){
+  const e=el("div","empty");
+  e.innerHTML=
+    '<div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#8A928C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><circle cx="12" cy="6" r="3" fill="#E9B872" stroke="#DF9F4E"/><path d="M5 22c2-3 12-3 14 0"/></svg></div>'+
+    '<h2>첫 이정표를 세워볼까요</h2>'+
+    '<p>큰 목표 하나를 정하면,<br>그 길 위에 이정표를 하나씩 세워갈 수 있어요.</p>';
+  const b=el("button","btn-primary");b.textContent="목표 만들기";
+  b.onclick=addGoal;
+  e.appendChild(b);
+  app.appendChild(e);
+}
+
+function addGoal(){
+  const g={id:uid(),title:"",deadline:null,milestones:[]};
+  state.goals.push(g);state.active=g.id;save();render();
+  setTimeout(()=>{const t=document.querySelector(".goalhead .title");if(t)t.focus();},60);
+}
+
+// --- 헬퍼 ---
+function el(tag,cls){const e=document.createElement(tag);if(cls)e.className=cls;return e;}
+function autoGrow(t){t.style.height="auto";t.style.height=t.scrollHeight+"px";}
+
+load();render();
+
+// PWA
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("./sw_milestone.js").catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
