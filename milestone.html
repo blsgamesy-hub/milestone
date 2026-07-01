@@ -589,11 +589,13 @@ const SCENE_SVG=`<svg class="scene" viewBox="0 0 560 184" preserveAspectRatio="x
 <rect x="0" y="130" width="340" height="54" fill="url(#capshade)"/>
 </svg>`;
 
-// 라이트 성좌도 (은은한 별자리, 낮 하늘 톤)
+// 대각선 은하수 성좌도 (남색에서 밝은 크림톤으로 흐르는 배경, 은은한 별자리 선)
 const OKR_SCENE_SVG=`<svg class="scene" viewBox="0 0 560 184" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
 <defs>
-  <linearGradient id="okrSky" x1="0" y1="0" x2="0.15" y2="1">
-    <stop offset="0" stop-color="#E9EBF5"/><stop offset="0.5" stop-color="#EAEAF0"/>
+  <linearGradient id="okrSky" x1="0.1" y1="0" x2="0.5" y2="1">
+    <stop offset="0" stop-color="#3E4A82"/>
+    <stop offset="0.3" stop-color="#8A8FBE"/>
+    <stop offset="0.6" stop-color="#DCDBE2"/>
     <stop offset="1" stop-color="#F1E9DD"/>
   </linearGradient>
   <radialGradient id="starGlow" cx="0.5" cy="0.5" r="0.5">
@@ -601,18 +603,24 @@ const OKR_SCENE_SVG=`<svg class="scene" viewBox="0 0 560 184" preserveAspectRati
     <stop offset="0.45" stop-color="#D6A230" stop-opacity="0.42"/>
     <stop offset="1" stop-color="#D6A230" stop-opacity="0"/>
   </radialGradient>
+  <filter id="okrLineGlow" x="-30%" y="-30%" width="160%" height="160%">
+    <feGaussianBlur stdDeviation="1" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
 </defs>
 <rect width="560" height="184" fill="url(#okrSky)"/>
 <!-- 옅은 안개 층 -->
-<ellipse cx="150" cy="150" rx="220" ry="26" fill="#ffffff" opacity="0.32"/>
-<ellipse cx="430" cy="160" rx="180" ry="20" fill="#ffffff" opacity="0.26"/>
-<!-- 연결선 (추상 별자리) -->
-<g stroke="#C3C2D9" stroke-width="1.4" stroke-linecap="round" opacity="0.7">
-  <line x1="120" y1="118" x2="210" y2="64"/>
-  <line x1="210" y1="64" x2="300" y2="86"/>
-  <line x1="300" y1="86" x2="392" y2="52"/>
-  <line x1="300" y1="86" x2="336" y2="140"/>
-  <line x1="392" y1="52" x2="452" y2="96"/>
+<ellipse cx="120" cy="158" rx="240" ry="24" fill="#ffffff" opacity="0.30"/>
+<ellipse cx="440" cy="166" rx="200" ry="18" fill="#ffffff" opacity="0.24"/>
+<!-- 연결선 (추상 별자리, 은은하게) -->
+<g filter="url(#okrLineGlow)">
+  <g stroke="#F4F5FA" stroke-width="1.1" stroke-linecap="round" opacity="0.45">
+    <line x1="120" y1="118" x2="210" y2="64"/>
+    <line x1="210" y1="64" x2="300" y2="86"/>
+    <line x1="300" y1="86" x2="392" y2="52"/>
+    <line x1="300" y1="86" x2="336" y2="140"/>
+    <line x1="392" y1="52" x2="452" y2="96"/>
+  </g>
 </g>
 <!-- 별들 (여러 색 온도) -->
 <circle cx="120" cy="118" r="3.2" fill="#8B8FCB"/>
@@ -627,14 +635,6 @@ const OKR_SCENE_SVG=`<svg class="scene" viewBox="0 0 560 184" preserveAspectRati
 <circle cx="210" cy="64" r="2.1" fill="#FFF3DA"/>
 <circle cx="300" cy="86" r="3.6" fill="#A683A8"/>
 <circle cx="392" cy="52" r="3.6" fill="#8286C6"/>
-<!-- 텍스트 가독성용 하단 은은한 그라디언트 -->
-<rect x="0" y="130" width="340" height="54" fill="url(#capshade2)"/>
-<defs>
-  <linearGradient id="capshade2" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#E3E5EE" stop-opacity="0"/>
-    <stop offset="1" stop-color="#E3E5EE" stop-opacity="0.55"/>
-  </linearGradient>
-</defs>
 </svg>`;
 
 // --- 아이콘 ---
