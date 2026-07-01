@@ -153,7 +153,7 @@
 
   /* 빈 상태 */
   .empty{text-align:center;padding:60px 20px;margin:auto 0}
-  .empty .ic{width:56px;height:56px;margin:0 auto 20px;opacity:.7}
+  .empty .ic{width:60px;height:60px;margin:0 auto 20px}
   .empty h2{font-size:19px;font-weight:700;margin-bottom:8px}
   .empty p{font-size:14px;color:var(--ink-soft);margin-bottom:24px;line-height:1.6}
   .btn-primary{background:var(--ink);color:#F4F6F3;border:none;border-radius:12px;padding:13px 26px;
@@ -444,7 +444,16 @@ function deadlineControl(obj,isGoal){
 function renderEmpty(app){
   const e=el("div","empty");
   e.innerHTML=
-    '<div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#8A928C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><circle cx="12" cy="6" r="3" fill="#E9B872" stroke="#DF9F4E"/><path d="M5 22c2-3 12-3 14 0"/></svg></div>'+
+    '<div class="ic"><svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">'+
+    '<defs><radialGradient id="eglow" cx="0.5" cy="0.5" r="0.5">'+
+    '<stop offset="0" stop-color="#F4CE8E" stop-opacity="0.9"/>'+
+    '<stop offset="0.45" stop-color="#E9B872" stop-opacity="0.38"/>'+
+    '<stop offset="1" stop-color="#E9B872" stop-opacity="0"/></radialGradient></defs>'+
+    '<path d="M3 46 Q28 40 53 46" stroke="#A9BAA6" stroke-width="2" stroke-linecap="round" fill="none"/>'+
+    '<circle cx="28" cy="18" r="14" fill="url(#eglow)"/>'+
+    '<rect x="24.4" y="17" width="7.2" height="29" rx="3.4" fill="#7E877E"/>'+
+    '<circle cx="28" cy="17" r="4.4" fill="#EFC07F"/>'+
+    '<circle cx="28" cy="17" r="2.1" fill="#FFF1D8"/></svg></div>'+
     '<h2>첫 이정표를 세워볼까요</h2>'+
     '<p>큰 목표 하나를 정하면,<br>그 길 위에 이정표를 하나씩 세워갈 수 있어요.</p>';
   const b=el("button","btn-primary");b.textContent="목표 만들기";
