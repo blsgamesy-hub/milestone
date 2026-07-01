@@ -25,6 +25,14 @@
     --ink-soft:#78827A;
     --fog:#AAB4AC;
     --line:#DBE0DB;
+    --star:#8B8FCB;
+    --star-deep:#6C70AC;
+    --star-dim:#D3D5EA;
+    --gold:#D6A230;
+    --gold-dim:#E8DDBE;
+    --rose:#C98FA0;
+    --rose-deep:#A66478;
+    --rose-dim:#EDD9DF;
     --radius:16px;
     --shadow:0 1px 2px rgba(57,65,59,.05), 0 8px 24px rgba(57,65,59,.06);
   }
@@ -44,12 +52,98 @@
     padding:calc(env(safe-area-inset-top) + 18px) 20px calc(env(safe-area-inset-bottom) + 40px);
     display:flex;flex-direction:column}
 
+  #toolRoot{position:relative}
+
+  /* ---- 히어로 내 도구 스위처 ---- */
+  .cap-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .cap-left{display:flex;align-items:center;gap:8px;min-width:0}
+  .cap-right{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+  .switcher{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.16);
+    -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.38);
+    border-radius:999px;padding:4px 10px 4px 8px;color:#fff;font-size:10px;font-weight:700;
+    letter-spacing:.1em;cursor:pointer;text-shadow:0 1px 6px rgba(40,52,42,.35);white-space:nowrap}
+  .switcher svg{width:12px;height:12px;stroke:#fff;flex:0 0 auto}
+  .switcher-menu{position:absolute;top:152px;right:20px;z-index:5;background:var(--card);
+    border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:6px;
+    min-width:136px;display:none}
+  .switcher-menu.open{display:block}
+  .switcher-menu button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;
+    background:none;border:none;font-size:13px;font-weight:600;color:var(--ink-soft);
+    padding:9px 10px;border-radius:9px;cursor:pointer;font-family:inherit}
+  .switcher-menu button.active{color:var(--ink);background:var(--mist-deep)}
+  .switcher-menu button .sw-dot{width:6px;height:6px;border-radius:50%;background:var(--line);flex:0 0 auto}
+  .switcher-menu button.active .sw-dot{background:var(--lantern)}
+
+  .guide-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;
+    background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,.38);border-radius:50%;cursor:pointer;font-size:13px;
+    line-height:1;padding:0}
+
+  /* 분기 사이클 필 (OKR 전용) */
+  .cycle-pill-wrap{position:relative;flex:0 0 auto}
+  .cycle-pill{display:inline-flex;align-items:center;gap:3px;background:rgba(255,255,255,.5);
+    border:1px solid rgba(120,130,150,.25);border-radius:999px;padding:3px 8px 3px 10px;
+    font-size:10.5px;font-weight:700;color:var(--ink-soft);cursor:pointer;letter-spacing:.02em}
+  .cycle-pill svg{width:11px;height:11px;stroke:var(--ink-soft)}
+  .cycle-menu{position:absolute;top:30px;left:0;z-index:6;background:var(--card);
+    border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:6px;
+    min-width:180px;display:none}
+  .cycle-menu.open{display:block}
+  .cycle-menu button{display:flex;align-items:center;justify-content:space-between;width:100%;
+    text-align:left;background:none;border:none;font-size:13px;font-weight:600;color:var(--ink-soft);
+    padding:9px 10px;border-radius:9px;cursor:pointer;font-family:inherit}
+  .cycle-menu button:hover{background:var(--mist-deep)}
+  .cycle-menu .cm-pct{font-size:11px;color:var(--star-deep);font-weight:700}
+  .cycle-menu-empty{font-size:12px;color:var(--fog);padding:9px 10px}
+  .cycle-menu-divider{height:1px;background:var(--line);margin:4px 2px}
+  .cycle-menu-close{color:var(--rose-deep) !important}
+
+  .readonly-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:var(--mist-deep);border:1px solid var(--line);border-radius:12px;
+    padding:10px 14px;margin-bottom:14px;font-size:12.5px;color:var(--ink-soft)}
+  .readonly-banner button{background:none;border:none;color:var(--star-deep);font-weight:700;
+    font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap}
+
+  /* 가이드 모달 */
+  .guide-overlay{position:fixed;inset:0;background:rgba(57,65,59,.4);z-index:50;
+    display:flex;align-items:flex-end;justify-content:center}
+  .guide-modal{background:var(--card);border-radius:22px 22px 0 0;max-width:560px;width:100%;
+    max-height:82vh;display:flex;flex-direction:column;overflow:hidden}
+  .guide-head{display:flex;align-items:center;justify-content:space-between;
+    padding:20px 22px 8px}
+  .guide-head h2{font-size:18px;font-weight:800}
+  .guide-close{background:var(--mist-deep);border:none;border-radius:50%;width:30px;height:30px;
+    font-size:16px;color:var(--ink-soft);cursor:pointer;flex:0 0 auto}
+  .guide-tabs{display:flex;gap:6px;padding:6px 22px 14px;border-bottom:1px solid var(--line);
+    overflow-x:auto;scrollbar-width:none}
+  .guide-tabs::-webkit-scrollbar{display:none}
+  .guide-tab{flex:0 0 auto;background:var(--mist-deep);border:1px solid var(--line);border-radius:999px;
+    padding:7px 13px;font-size:12.5px;font-weight:700;color:var(--ink-soft);cursor:pointer;
+    font-family:inherit;white-space:nowrap}
+  .guide-tab.active{background:var(--ink);color:#F4F6F3;border-color:var(--ink)}
+  .guide-body{overflow-y:auto;padding:18px 22px calc(env(safe-area-inset-bottom) + 26px)}
+  .guide-body h4{font-size:12px;font-weight:800;color:var(--star-deep);margin:16px 0 7px;
+    letter-spacing:.02em}
+  .guide-body h4:first-of-type{margin-top:2px}
+  .guide-body ul{padding-left:18px;margin-bottom:2px}
+  .guide-body li{font-size:13.5px;color:var(--ink-soft);line-height:1.65;margin-bottom:7px}
+  .guide-body .g-sub{font-size:12.5px;color:var(--fog);margin-bottom:14px;line-height:1.6;
+    padding-bottom:14px;border-bottom:1px dashed var(--line)}
+  .guide-body .g-purpose{font-size:13.5px;color:var(--ink);font-weight:700;line-height:1.6;
+    background:linear-gradient(135deg,rgba(223,159,78,.1),rgba(139,143,203,.08));
+    border-radius:10px;padding:11px 13px;margin-bottom:16px}
+  .guide-body .g-ex{display:inline-block;margin-top:3px;font-size:12px;color:var(--fog)}
+  .guide-body p.g-tip{font-size:12.5px;color:var(--ink-soft);background:var(--mist-deep);
+    border-radius:10px;padding:10px 12px;line-height:1.55;margin-top:12px}
+
+  .content{display:contents}
+
   /* ---- 상단 히어로 (풀블리드) ---- */
-  .hero{position:relative;height:184px;overflow:hidden;
+  .hero{position:relative;height:184px;
     margin:calc(-1*(env(safe-area-inset-top) + 18px)) -20px 20px;
     border-radius:0;box-shadow:0 6px 20px rgba(57,65,59,.08)}
-  .hero svg.scene{position:absolute;inset:0;width:100%;height:100%;display:block}
-  .hero .cap{position:absolute;left:22px;bottom:18px;z-index:2}
+  .hero svg.scene{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0}
+  .hero .cap{position:absolute;left:22px;right:22px;bottom:18px;z-index:2}
   .hero h1{font-size:24px;font-weight:700;letter-spacing:.05em;color:#fff;
     text-shadow:0 1px 10px rgba(40,52,42,.4)}
   .hero .sub{display:block;font-size:10.5px;color:rgba(255,255,255,.82);letter-spacing:.18em;
@@ -167,6 +261,66 @@
   input[type=date]{position:absolute;inset:0;width:100%;height:100%;opacity:0;
     cursor:pointer;border:none;background:none}
 
+  /* ---- OKR 도구 ---- */
+  .okr-hero .cap h1{color:var(--ink);text-shadow:none}
+  .okr-hero .cap .sub{color:var(--ink-soft);text-shadow:none}
+  .okr-hero .switcher{background:rgba(255,255,255,.55);border-color:rgba(120,130,150,.25);
+    color:var(--ink-soft);text-shadow:none}
+  .okr-hero .switcher svg{stroke:var(--ink-soft)}
+
+  .obj-ring-wrap{display:flex;align-items:center;gap:8px}
+  .obj-ring-wrap svg{width:34px;height:34px;flex:0 0 auto}
+  .obj-ring-pct{font-size:13px;font-weight:700;color:var(--star-deep)}
+  .obj-ring-label{font-size:11.5px;color:var(--fog)}
+  .stretch-note{font-size:11.5px;color:var(--fog);margin-top:6px}
+
+  .tag-o{display:inline-flex;align-items:center;font-size:9.5px;font-weight:800;letter-spacing:.06em;
+    color:var(--ink-soft);background:var(--mist-deep);border:1px solid var(--line);
+    border-radius:6px;padding:2px 6px;margin-bottom:8px}
+  .tag-kr{display:inline-flex;align-items:center;font-size:9px;font-weight:800;letter-spacing:.05em;
+    color:var(--star-deep);background:rgba(139,143,203,.13);border-radius:6px;padding:2px 6px;
+    flex:0 0 auto;margin-bottom:8px}
+
+  .kr-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 16px;box-shadow:var(--shadow);margin-bottom:12px}
+  .kr-top{display:flex;align-items:flex-start;gap:10px}
+  .kr-title{flex:1;font-size:15px;font-weight:600;color:var(--ink);background:none;border:none;
+    font-family:inherit;width:100%;resize:none;overflow:hidden;line-height:1.4}
+  .kr-title:focus{outline:none}
+  .kr-del{flex:0 0 auto;font-size:11.5px;color:var(--fog);background:none;border:none;cursor:pointer;
+    padding:3px 4px}
+
+  .kr-bar-row{margin-top:11px}
+  .kr-bar{position:relative;height:8px;border-radius:999px;background:var(--mist-deep);overflow:hidden}
+  .kr-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--star-dim),var(--star));
+    transition:width .3s ease}
+  .kr-nums{display:flex;align-items:baseline;justify-content:space-between;margin-top:7px;
+    font-size:11.5px;color:var(--fog)}
+  .kr-nums .kr-pct{font-weight:700;color:var(--star-deep);font-size:12.5px}
+
+  .kr-inputs{display:flex;align-items:center;gap:10px;margin-top:11px;flex-wrap:wrap}
+  .kr-field{display:flex;flex-direction:column;gap:3px}
+  .kr-field label{font-size:10px;color:var(--fog);letter-spacing:.04em}
+  .kr-field input{width:64px;font-size:13.5px;font-weight:600;color:var(--ink);background:var(--mist-deep);
+    border:1px solid var(--line);border-radius:8px;padding:5px 7px;font-family:inherit}
+  .kr-field input:focus{outline:none;border-color:var(--star)}
+  .kr-field.cur input{width:76px;border-color:rgba(139,143,203,.4);background:#fff}
+  .kr-unit{font-size:11.5px;color:var(--fog);align-self:flex-end;padding-bottom:6px}
+
+  .conf-field{margin-left:auto}
+  .conf-field input{width:54px;border-color:rgba(201,143,160,.5);color:var(--rose-deep);
+    -moz-appearance:textfield;text-align:center}
+  .conf-field input::-webkit-outer-spin-button,
+  .conf-field input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .conf-field input:focus{border-color:var(--rose)}
+  .conf-input-row{display:flex;align-items:center;gap:3px}
+  .conf-input-row .pct-suffix{font-size:11.5px;color:var(--rose-deep);font-weight:700}
+
+  .add-kr-btn{width:100%;text-align:left;background:transparent;border:1px dashed var(--line);
+    border-radius:var(--radius);padding:13px 16px;color:var(--fog);font-size:14px;font-weight:500;
+    cursor:pointer;font-family:inherit;margin-top:4px}
+  .add-kr-btn:hover{border-color:var(--star);color:var(--star-deep)}
+
   @media (prefers-reduced-motion: reduce){
     *{animation:none !important;transition:none !important}
   }
@@ -176,6 +330,189 @@
 <div id="app"></div>
 
 <script>
+// ---- 앱 셸 (도구 전환·마지막 상태 기억) ----
+const APP_KEY="goal_lens_shell_v1";
+let appState={lastTool:"milestone"};
+function loadApp(){
+  try{const r=localStorage.getItem(APP_KEY);if(r)appState={...appState,...JSON.parse(r)};}catch(e){}
+}
+function saveApp(){try{localStorage.setItem(APP_KEY,JSON.stringify(appState));}catch(e){}}
+
+const TOOLS=[
+  {id:"milestone", label:"이정표", render:renderMilestoneTool},
+  {id:"okr", label:"별자리", render:renderOkrTool}
+];
+
+function renderShell(){
+  const app=document.getElementById("app");
+  app.innerHTML="";
+
+  const root=el("div","toolRoot");root.id="toolRoot";
+  app.appendChild(root);
+
+  const active=TOOLS.find(t=>t.id===appState.lastTool)||TOOLS[0];
+  active.render();
+
+  // 히어로 캡 라인에 가이드 버튼 + 도구 스위처 꽂기
+  const capRow=root.querySelector(".cap-row");
+  if(capRow){
+    const rightGroup=el("div","cap-right");
+    const guideBtn=el("button","guide-btn");
+    guideBtn.textContent="📖";
+    guideBtn.setAttribute("aria-label","가이드 열기");
+    guideBtn.onclick=(e)=>{e.stopPropagation();openGuide();};
+    rightGroup.appendChild(guideBtn);
+    rightGroup.appendChild(buildSwitcher());
+    capRow.appendChild(rightGroup);
+  }
+}
+
+const GUIDE_PAGES=[
+  {
+    id:"milestone", icon:"🏔️", tabLabel:"이정표 길", title:"이정표 길",
+    sub:"큰 목표를 통과 지점으로 나눠, 지금 어디까지 왔는지 눈으로 확인하는 도구",
+    purpose:"큰 목표를 작은 이정표로 나누어 꾸준히 나아간다.",
+    sections:[
+      {h:"핵심 룰", items:[
+        "이정표엔 순서가 있다 — 통과 · 지금 여기 · 앞으로",
+        "완료는 이분법이다. 몇 %인지 재지 않는다",
+        "기한은 참고선이지 압박이 아니다"
+      ]},
+      {h:"작성요령", items:[
+        '이정표 이름은 "끝났음을 한눈에 알 수 있는 결과물"로 쓰기<br><span class="g-ex">예: "레시피 3개 테스트 완료" — "레시피 테스트하기"보다 명확</span>',
+        '막혀서 손이 안 갈 때만 "쪼개기"로 작은 행동을 꺼내보기'
+      ]}
+    ]
+  },
+  {
+    id:"okr", icon:"✨", tabLabel:"별자리", title:"별자리 (OKR)",
+    sub:"방향과 결과를 분리해서, 얼마나 도전하고 있는지 스스로 가늠하게 하는 도구",
+    purpose:"가장 중요한 목표에 집중하고, 도전하며, 결과를 통해 성장한다.",
+    sections:[
+      {h:"핵심 룰", items:[
+        '핵심 결과는 반드시 숫자로 잴 수 있어야 한다<br><span class="g-ex">"촬영하기"(활동) 대신 "구독자 100명"(결과)</span>',
+        "도전 목표: 100% 달성은 오히려 목표가 낮았다는 뜻. 60~70%면 성공",
+        "목표는 최대 3개, 핵심 결과는 목표당 최대 5개 — 집중을 위한 한도",
+        '분기가 끝나면 "접고" 새로 시작한다. 지난 기록은 조용히 남는다'
+      ]},
+      {h:"작성요령", items:[
+        "Objective엔 숫자를 넣지 않기. 왜 이 일이 중요한지가 드러나게",
+        "Key Result는 시작·목표 숫자를 먼저 정하고, 현재값만 주기적으로 갱신하기"
+      ]}
+    ]
+  },
+  {
+    id:"smart", icon:"📐", tabLabel:"SMART", title:"SMART",
+    sub:"별도 도구는 아니지만, 목표나 이정표 문장을 다듬을 때 참고하면 좋은 5가지 체크리스트",
+    sections:[
+      {h:"5가지 기준", items:[
+        "<b>Specific</b> — 구체적인가",
+        "<b>Measurable</b> — 측정할 수 있는가",
+        "<b>Achievable</b> — 현실적으로 닿을 수 있는가",
+        "<b>Relevant</b> — 지금 나에게 정말 중요한가",
+        "<b>Time-bound</b> — 언제까지인지 감이 있는가"
+      ]}
+    ],
+    tip:"이정표나 Key Result 이름이 막연하게 느껴질 때, 이 다섯 가지 중 뭐가 빠졌는지 한번 훑어보면 도움이 돼요."
+  }
+];
+let guidePageId="milestone";
+
+function openGuide(){
+  closeGuide();
+  guidePageId="milestone";
+  const overlay=el("div","guide-overlay");
+  overlay.id="guideOverlay";
+  overlay.onclick=(e)=>{if(e.target===overlay)closeGuide();};
+  const modal=el("div","guide-modal");
+  modal.id="guideModalInner";
+
+  const head=el("div","guide-head");
+  head.innerHTML="<h2>목표관리 가이드</h2>";
+  const closeBtn=el("button","guide-close");closeBtn.textContent="×";
+  closeBtn.onclick=closeGuide;
+  head.appendChild(closeBtn);
+  modal.appendChild(head);
+
+  const tabs=el("div","guide-tabs");
+  GUIDE_PAGES.forEach(pg=>{
+    const t=el("button","guide-tab"+(pg.id===guidePageId?" active":""));
+    t.innerHTML="<span>"+pg.icon+"</span> "+esc(pg.tabLabel);
+    t.onclick=()=>{guidePageId=pg.id;renderGuidePage();};
+    tabs.appendChild(t);
+  });
+  modal.appendChild(tabs);
+
+  const body=el("div","guide-body");
+  body.id="guideBody";
+  modal.appendChild(body);
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  renderGuidePage();
+}
+
+function renderGuidePage(){
+  const modal=document.getElementById("guideModalInner");
+  if(!modal)return;
+  modal.querySelectorAll(".guide-tab").forEach((t,i)=>{
+    t.classList.toggle("active",GUIDE_PAGES[i].id===guidePageId);
+  });
+  const body=document.getElementById("guideBody");
+  const pg=GUIDE_PAGES.find(p=>p.id===guidePageId);
+  let html='<p class="g-sub">'+pg.sub+'</p>';
+  if(pg.purpose)html+='<p class="g-purpose">'+esc(pg.purpose)+'</p>';
+  pg.sections.forEach(sec=>{
+    html+='<h4>'+esc(sec.h)+'</h4><ul>';
+    sec.items.forEach(it=>{html+='<li>'+it+'</li>';});
+    html+='</ul>';
+  });
+  if(pg.tip)html+='<p class="g-tip">'+esc(pg.tip)+'</p>';
+  body.innerHTML=html;
+  body.scrollTop=0;
+}
+
+function closeGuide(){
+  const o=document.getElementById("guideOverlay");
+  if(o)o.remove();
+}
+
+let switcherOpen=false;
+function buildSwitcher(){
+  const wrap=document.createDocumentFragment();
+  const btn=el("button","switcher");
+  const label=TOOLS.length>1?"도구 전환":(TOOLS.find(t=>t.id===appState.lastTool)||TOOLS[0]).label;
+  btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3L3 7l4 4"/><path d="M3 7h13a4 4 0 0 1 4 4v1"/><path d="M17 21l4-4-4-4"/><path d="M21 17H8a4 4 0 0 1-4-4v-1"/></svg><span>'+esc(label)+'</span>';
+
+  const menu=el("div","switcher-menu"+(switcherOpen?" open":""));
+  menu.id="switcherMenu";
+  TOOLS.forEach(t=>{
+    const mb=el("button",t.id===appState.lastTool?"active":"");
+    mb.innerHTML='<span class="sw-dot"></span><span>'+esc(t.label)+'</span>';
+    mb.onclick=(e)=>{e.stopPropagation();
+      if(appState.lastTool!==t.id){appState.lastTool=t.id;saveApp();}
+      switcherOpen=false;renderShell();};
+    menu.appendChild(mb);
+  });
+
+  btn.onclick=(e)=>{e.stopPropagation();switcherOpen=!switcherOpen;
+    menu.classList.toggle("open",switcherOpen);};
+
+  wrap.appendChild(btn);
+  wrap.appendChild(menu);
+
+  // 바깥 클릭시 닫기 (한 번만 등록)
+  if(!window.__switcherOutsideBound){
+    window.__switcherOutsideBound=true;
+    document.addEventListener("click",()=>{
+      if(switcherOpen){switcherOpen=false;
+        const m=document.getElementById("switcherMenu");
+        if(m)m.classList.remove("open");}
+    });
+  }
+  return wrap;
+}
+
 const KEY="milestone_path_v1";
 let state={goals:[],active:null};
 const uid=()=>Math.random().toString(36).slice(2,9);
@@ -252,6 +589,54 @@ const SCENE_SVG=`<svg class="scene" viewBox="0 0 560 184" preserveAspectRatio="x
 <rect x="0" y="130" width="340" height="54" fill="url(#capshade)"/>
 </svg>`;
 
+// 라이트 성좌도 (은은한 별자리, 낮 하늘 톤)
+const OKR_SCENE_SVG=`<svg class="scene" viewBox="0 0 560 184" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="okrSky" x1="0" y1="0" x2="0.15" y2="1">
+    <stop offset="0" stop-color="#E9EBF5"/><stop offset="0.5" stop-color="#EAEAF0"/>
+    <stop offset="1" stop-color="#F1E9DD"/>
+  </linearGradient>
+  <radialGradient id="starGlow" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#F0DBA3" stop-opacity="0.95"/>
+    <stop offset="0.45" stop-color="#D6A230" stop-opacity="0.42"/>
+    <stop offset="1" stop-color="#D6A230" stop-opacity="0"/>
+  </radialGradient>
+</defs>
+<rect width="560" height="184" fill="url(#okrSky)"/>
+<!-- 옅은 안개 층 -->
+<ellipse cx="150" cy="150" rx="220" ry="26" fill="#ffffff" opacity="0.32"/>
+<ellipse cx="430" cy="160" rx="180" ry="20" fill="#ffffff" opacity="0.26"/>
+<!-- 연결선 (추상 별자리) -->
+<g stroke="#C3C2D9" stroke-width="1.4" stroke-linecap="round" opacity="0.7">
+  <line x1="120" y1="118" x2="210" y2="64"/>
+  <line x1="210" y1="64" x2="300" y2="86"/>
+  <line x1="300" y1="86" x2="392" y2="52"/>
+  <line x1="300" y1="86" x2="336" y2="140"/>
+  <line x1="392" y1="52" x2="452" y2="96"/>
+</g>
+<!-- 별들 (여러 색 온도) -->
+<circle cx="120" cy="118" r="3.2" fill="#8B8FCB"/>
+<circle cx="336" cy="140" r="2.8" fill="#C98FA0"/>
+<circle cx="452" cy="96" r="2.9" fill="#8B8FCB"/>
+<circle cx="80" cy="70" r="2" fill="#D7B6C1"/>
+<circle cx="480" cy="150" r="2.1" fill="#C4C7E8"/>
+<circle cx="40" cy="140" r="1.6" fill="#CDD0EC"/>
+<!-- 초점이 되는 별 (등불과 같은 골드 후광 — 이정표와 시각 언어 연결) -->
+<circle cx="210" cy="64" r="30" fill="url(#starGlow)"/>
+<circle cx="210" cy="64" r="4.6" fill="#C99A3D"/>
+<circle cx="210" cy="64" r="2.1" fill="#FFF3DA"/>
+<circle cx="300" cy="86" r="3.6" fill="#A683A8"/>
+<circle cx="392" cy="52" r="3.6" fill="#8286C6"/>
+<!-- 텍스트 가독성용 하단 은은한 그라디언트 -->
+<rect x="0" y="130" width="340" height="54" fill="url(#capshade2)"/>
+<defs>
+  <linearGradient id="capshade2" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#E3E5EE" stop-opacity="0"/>
+    <stop offset="1" stop-color="#E3E5EE" stop-opacity="0.55"/>
+  </linearGradient>
+</defs>
+</svg>`;
+
 // --- 아이콘 ---
 const IC={
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
@@ -259,7 +644,8 @@ const IC={
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
   cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
   branch:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>',
-  lantern:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/></svg>'
+  lantern:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/></svg>',
+  star:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.06 6.6.72-4.9 4.62 1.28 6.55L12 17.9l-5.88 3.55 1.28-6.55-4.9-4.62 6.6-.72z"/></svg>'
 };
 
 // --- 상태 계산 ---
@@ -270,32 +656,41 @@ function hereIndex(g){
 }
 
 // --- 렌더 ---
-function render(){
-  const app=document.getElementById("app");
+function renderMilestoneTool(){
+  const app=document.getElementById("toolRoot");
   app.innerHTML="";
 
   // 히어로 (안개 낀 오솔길 풍경)
   const hero=el("div","hero");
-  hero.innerHTML=SCENE_SVG+
-    '<div class="cap"><h1>이정표 길</h1><span class="sub">MILESTONE PATH</span></div>';
+  hero.innerHTML=SCENE_SVG;
+  const cap=el("div","cap");
+  const h1=document.createElement("h1");h1.textContent="이정표 길";
+  const capRow=el("div","cap-row");
+  const sub=el("span","sub");sub.textContent="MILESTONE PATH";
+  capRow.appendChild(sub);
+  cap.appendChild(h1);cap.appendChild(capRow);
+  hero.appendChild(cap);
   app.appendChild(hero);
+
+  const content=el("div","content");
+  app.appendChild(content);
 
   // 목표 칩 줄
   const bar=el("div","goalbar");
   state.goals.forEach(g=>{
     const c=el("button","chip"+(g.id===state.active?" active":""));
     c.textContent=g.title||"(제목 없음)";
-    c.onclick=()=>{state.active=g.id;save();render();};
+    c.onclick=()=>{state.active=g.id;save();renderMilestoneTool();};
     bar.appendChild(c);
   });
   const addChip=el("button","chip add");
   addChip.textContent="+ 목표";
   addChip.onclick=addGoal;
   bar.appendChild(addChip);
-  app.appendChild(bar);
+  content.appendChild(bar);
 
   const g=goalById(state.active);
-  if(!g){renderEmpty(app);return;}
+  if(!g){renderEmpty(content);return;}
 
   // 목표 헤더
   const head=el("div","goalhead");
@@ -317,10 +712,10 @@ function render(){
   const del=el("button","goal-del");del.textContent="목표 삭제";
   del.onclick=()=>{if(confirm("이 목표를 삭제할까요?")){
     state.goals=state.goals.filter(x=>x.id!==g.id);
-    state.active=state.goals[0]?state.goals[0].id:null;save();render();}};
+    state.active=state.goals[0]?state.goals[0].id:null;save();renderMilestoneTool();}};
   meta.appendChild(del);
   head.appendChild(meta);
-  app.appendChild(head);
+  content.appendChild(head);
   requestAnimationFrame(()=>autoGrow(title));
 
   // 이정표 길
@@ -342,21 +737,388 @@ function render(){
   addBtn.textContent="이정표 세우기";
   addBtn.onclick=()=>{
     g.milestones.push({id:uid(),title:"",deadline:null,done:false,expanded:false,subs:[]});
-    save();render();
+    save();renderMilestoneTool();
     // 새 카드 포커스
     setTimeout(()=>{const ins=document.querySelectorAll(".m-title");if(ins.length)ins[ins.length-1].focus();},60);
   };
   addWrap.appendChild(addBtn);
   path.appendChild(addWrap);
-  app.appendChild(path);
+  content.appendChild(path);
 
   // 완주 배너
   if(g.milestones.length>0 && g.milestones.every(m=>m.done)){
     const b=el("div","done-banner");
     b.innerHTML='<span style="font-size:18px">🏁</span> 이 길의 이정표를 모두 지나왔어요.';
-    app.appendChild(b);
+    content.appendChild(b);
   }
 }
+
+
+// ================= OKR 도구 (별자리) =================
+const OKR_KEY="okr_v1";
+let okrState={currentCycleId:null,cycles:[]};
+let viewingCycleId=null; // 지난 분기 열람 중이면 그 사이클 id (읽기전용)
+
+function quarterLabel(d){
+  d=d||new Date();
+  return d.getFullYear()+" Q"+(Math.floor(d.getMonth()/3)+1);
+}
+function nextQuarterLabel(label){
+  const m=label.match(/(\d+)\s*Q(\d)/);
+  if(!m)return quarterLabel();
+  let y=Number(m[1]),q=Number(m[2])+1;
+  if(q>4){q=1;y++;}
+  return y+" Q"+q;
+}
+function makeCycle(label){
+  return {id:"c_"+uid(),label:label,archived:false,objectives:[],active:null};
+}
+function activeCycle(){return okrState.cycles.find(c=>c.id===okrState.currentCycleId);}
+function viewCycle(){return okrState.cycles.find(c=>c.id===(viewingCycleId||okrState.currentCycleId))||activeCycle();}
+function isReadOnly(){return !!viewingCycleId && viewingCycleId!==okrState.currentCycleId;}
+
+function loadOkr(){
+  try{const r=localStorage.getItem(OKR_KEY);if(r)okrState=JSON.parse(r);}catch(e){}
+  // 구버전(사이클 없는) 데이터 마이그레이션
+  if(!okrState.cycles){
+    const oldObjectives=okrState.objectives||[];
+    const oldActive=okrState.active||(oldObjectives[0]&&oldObjectives[0].id)||null;
+    const c=makeCycle(quarterLabel());
+    c.objectives=oldObjectives;c.active=oldActive;
+    okrState={currentCycleId:c.id,cycles:[c]};
+  }
+  if(!okrState.cycles.length){
+    const c=makeCycle(quarterLabel());
+    okrState.cycles.push(c);okrState.currentCycleId=c.id;
+  }
+  if(!okrState.currentCycleId||!okrState.cycles.find(c=>c.id===okrState.currentCycleId)){
+    let cur=okrState.cycles.find(c=>!c.archived);
+    if(!cur){
+      const lastLabel=okrState.cycles[okrState.cycles.length-1].label;
+      cur=makeCycle(nextQuarterLabel(lastLabel));
+      okrState.cycles.push(cur);
+    }
+    okrState.currentCycleId=cur.id;
+  }
+}
+function saveOkr(){try{localStorage.setItem(OKR_KEY,JSON.stringify(okrState));}catch(e){}}
+
+function objById(id){return viewCycle().objectives.find(o=>o.id===id);}
+function krProgress(kr){
+  const s=Number(kr.start)||0,t=Number(kr.target)||0,c=Number(kr.current)||0;
+  if(t===s)return c>=t?1:0;
+  return Math.max(0,Math.min(1,(c-s)/(t-s)));
+}
+function objProgress(o){
+  if(!o.keyResults.length)return 0;
+  return o.keyResults.reduce((sum,kr)=>sum+krProgress(kr),0)/o.keyResults.length;
+}
+function cycleProgress(c){
+  if(!c.objectives.length)return 0;
+  return c.objectives.reduce((sum,o)=>sum+objProgress(o),0)/c.objectives.length;
+}
+
+function closeCycle(){
+  if(!confirm("이번 분기를 접고 새 분기를 시작할까요?\n지금 목표들은 기록으로 남고, 새 분기는 빈 화면에서 시작해요.")) return;
+  const cur=activeCycle();
+  cur.archived=true;
+  const nc=makeCycle(nextQuarterLabel(cur.label));
+  okrState.cycles.push(nc);
+  okrState.currentCycleId=nc.id;
+  viewingCycleId=null;
+  saveOkr();renderOkrTool();
+}
+
+function renderOkrTool(){
+  const app=document.getElementById("toolRoot");
+  app.innerHTML="";
+
+  const cyc=viewCycle();
+  const readOnly=isReadOnly();
+
+  // 히어로 (라이트 성좌도)
+  const hero=el("div","hero okr-hero");
+  hero.innerHTML=OKR_SCENE_SVG;
+  const cap=el("div","cap");
+  const h1=document.createElement("h1");h1.textContent="별자리";
+  const capRow=el("div","cap-row");
+  const leftWrap=el("div","cap-left");
+  const sub=el("span","sub");sub.textContent="OBJECTIVES & KEY RESULTS";
+  leftWrap.appendChild(sub);
+  leftWrap.appendChild(cyclePill());
+  capRow.appendChild(leftWrap);
+  cap.appendChild(h1);cap.appendChild(capRow);
+  hero.appendChild(cap);
+  app.appendChild(hero);
+
+  const content=el("div","content");
+  app.appendChild(content);
+
+  if(readOnly){
+    const banner=el("div","readonly-banner");
+    const backBtn=el("button","");backBtn.textContent="현재 분기로 돌아가기";
+    backBtn.onclick=()=>{viewingCycleId=null;renderOkrTool();};
+    banner.innerHTML='<span>📖 지난 분기 · 읽기 전용</span>';
+    banner.appendChild(backBtn);
+    content.appendChild(banner);
+  }
+
+  // 목표 칩 줄
+  const bar=el("div","goalbar");
+  cyc.objectives.forEach(o=>{
+    const c=el("button","chip"+(o.id===cyc.active?" active":""));
+    c.textContent=o.title||"(제목 없음)";
+    c.onclick=()=>{cyc.active=o.id;saveOkr();renderOkrTool();};
+    bar.appendChild(c);
+  });
+  if(!readOnly){
+    const addChip=el("button","chip add");
+    addChip.textContent="+ 목표";
+    addChip.onclick=addObjective;
+    if(cyc.objectives.length>=3)addChip.style.display="none";
+    bar.appendChild(addChip);
+  }
+  content.appendChild(bar);
+
+  const o=objById(cyc.active);
+  if(!o){renderOkrEmpty(content,readOnly);return;}
+
+  // 목표 헤더
+  const head=el("div","goalhead");
+  const otag=el("div","tag-o");otag.textContent="OBJECTIVE · 가슴뛰는 목표";
+  head.appendChild(otag);
+  const title=document.createElement("textarea");
+  title.className="title";title.rows=1;title.value=o.title;title.placeholder="목표 이름 (Objective)";
+  title.disabled=readOnly;
+  title.oninput=()=>{o.title=title.value;autoGrow(title);saveOkr();
+    const chip=[...bar.querySelectorAll(".chip")].find((c,i)=>cyc.objectives[i]&&cyc.objectives[i].id===o.id);
+    if(chip)chip.textContent=title.value||"(제목 없음)";};
+  head.appendChild(title);
+
+  const meta=el("div","goalmeta");
+  meta.appendChild(deadlineControl(o,true,saveOkr,renderOkrTool));
+  if(o.keyResults.length>0){
+    const ringWrap=el("div","obj-ring-wrap");
+    const p=objProgress(o);
+    ringWrap.appendChild(ringSvg(p));
+    const pct=el("span","obj-ring-pct");pct.textContent=Math.round(p*100)+"%";
+    ringWrap.appendChild(pct);
+    const lbl=el("span","obj-ring-label");lbl.textContent="평균 진척";
+    ringWrap.appendChild(lbl);
+    meta.appendChild(ringWrap);
+  }
+  if(!readOnly){
+    const del=el("button","goal-del");del.textContent="목표 삭제";
+    del.onclick=()=>{if(confirm("이 목표를 삭제할까요?")){
+      cyc.objectives=cyc.objectives.filter(x=>x.id!==o.id);
+      cyc.active=cyc.objectives[0]?cyc.objectives[0].id:null;saveOkr();renderOkrTool();}};
+    meta.appendChild(del);
+  }
+  head.appendChild(meta);
+  if(o.keyResults.length>0){
+    const stretch=el("div","stretch-note");
+    stretch.textContent="도전적인 목표를 세우세요. 60~70% 달성해도 성공입니다.";
+    head.appendChild(stretch);
+  }
+  content.appendChild(head);
+  requestAnimationFrame(()=>autoGrow(title));
+
+  // 핵심 결과 목록
+  const list=el("div");
+  list.style.marginTop="18px";
+  o.keyResults.forEach(kr=>list.appendChild(krCard(o,kr,readOnly)));
+  content.appendChild(list);
+
+  if(!readOnly){
+    const addKrBtn=el("button","add-kr-btn");
+    addKrBtn.textContent="+ 핵심 결과 추가";
+    addKrBtn.onclick=()=>{
+      if(o.keyResults.length>=5){
+        alert("핵심 결과는 목표당 최대 5개까지예요. 너무 많으면 오히려 흐려져요.");
+        return;
+      }
+      o.keyResults.push({id:uid(),name:"",unit:"",start:0,current:0,target:100,confidence:50});
+      saveOkr();renderOkrTool();
+      setTimeout(()=>{const ins=document.querySelectorAll(".kr-title");if(ins.length)ins[ins.length-1].focus();},60);
+    };
+    if(o.keyResults.length>=5)addKrBtn.style.display="none";
+    content.appendChild(addKrBtn);
+  }
+}
+
+let cyclePillOpen=false;
+function cyclePill(){
+  const wrap=el("div","cycle-pill-wrap");
+  const cyc=viewCycle();
+  const btn=el("button","cycle-pill");
+  btn.innerHTML='<span>'+esc(cyc.label)+'</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+  const menu=el("div","cycle-menu"+(cyclePillOpen?" open":""));
+
+  const archived=okrState.cycles.filter(c=>c.id!==okrState.currentCycleId).slice().reverse();
+  if(archived.length===0){
+    const empty=el("div","cycle-menu-empty");empty.textContent="지난 분기 기록이 아직 없어요";
+    menu.appendChild(empty);
+  }else{
+    archived.forEach(c=>{
+      const mb=el("button","");
+      const pct=Math.round(cycleProgress(c)*100);
+      mb.innerHTML='<span class="cm-label">'+esc(c.label)+'</span><span class="cm-pct">'+pct+'%</span>';
+      mb.onclick=(e)=>{e.stopPropagation();viewingCycleId=c.id;cyclePillOpen=false;renderOkrTool();};
+      menu.appendChild(mb);
+    });
+  }
+  const divider=el("div","cycle-menu-divider");menu.appendChild(divider);
+  const closeBtn=el("button","cycle-menu-close");
+  closeBtn.textContent="이번 분기 접고 새 분기 시작";
+  closeBtn.onclick=(e)=>{e.stopPropagation();cyclePillOpen=false;closeCycle();};
+  menu.appendChild(closeBtn);
+
+  btn.onclick=(e)=>{e.stopPropagation();cyclePillOpen=!cyclePillOpen;menu.classList.toggle("open",cyclePillOpen);};
+
+  if(!window.__cyclePillOutsideBound){
+    window.__cyclePillOutsideBound=true;
+    document.addEventListener("click",()=>{
+      if(cyclePillOpen){cyclePillOpen=false;
+        const m=document.querySelector(".cycle-menu");
+        if(m)m.classList.remove("open");}
+    });
+  }
+  wrap.appendChild(btn);wrap.appendChild(menu);
+  return wrap;
+}
+
+function ringSvg(p){
+  const r=13,c=2*Math.PI*r;
+  const off=c*(1-p);
+  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.setAttribute("viewBox","0 0 34 34");
+  svg.innerHTML=
+    '<circle cx="17" cy="17" r="'+r+'" fill="none" stroke="var(--line)" stroke-width="4"/>'+
+    '<circle cx="17" cy="17" r="'+r+'" fill="none" stroke="var(--star)" stroke-width="4" '+
+    'stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+off+'" '+
+    'transform="rotate(-90 17 17)"/>';
+  return svg;
+}
+
+function krCard(o,kr,readOnly){
+  const card=el("div","kr-card");
+
+  const tag=el("span","tag-kr");tag.textContent="KR · 결과";
+  card.appendChild(tag);
+
+  const top=el("div","kr-top");
+  const ta=document.createElement("textarea");
+  ta.className="kr-title";ta.rows=1;ta.value=kr.name;ta.placeholder="핵심 결과 이름";
+  ta.disabled=!!readOnly;
+  ta.oninput=()=>{kr.name=ta.value;autoGrow(ta);saveOkr();};
+  top.appendChild(ta);
+  if(!readOnly){
+    const del=el("button","kr-del");del.textContent="삭제";
+    del.onclick=()=>{o.keyResults=o.keyResults.filter(x=>x.id!==kr.id);saveOkr();renderOkrTool();};
+    top.appendChild(del);
+  }
+  card.appendChild(top);
+  requestAnimationFrame(()=>autoGrow(ta));
+
+  // 진행 바
+  const barRow=el("div","kr-bar-row");
+  const bar=el("div","kr-bar");
+  const fill=el("div","kr-bar-fill");
+  const p=krProgress(kr);
+  fill.style.width=(p*100)+"%";
+  bar.appendChild(fill);
+  barRow.appendChild(bar);
+  const nums=el("div","kr-nums");
+  const unit=kr.unit?kr.unit:"";
+  nums.innerHTML='<span>'+esc(kr.start)+unit+' → '+esc(kr.target)+unit+'</span>'+
+    '<span class="kr-pct">'+Math.round(p*100)+'%</span>';
+  barRow.appendChild(nums);
+  card.appendChild(barRow);
+
+  // 입력값들
+  const inputs=el("div","kr-inputs");
+  inputs.appendChild(numField("시작",kr,"start",readOnly));
+  const curField=numField("현재",kr,"current",readOnly);
+  curField.classList.add("cur");
+  inputs.appendChild(curField);
+  inputs.appendChild(numField("목표",kr,"target",readOnly));
+
+  const unitWrap=el("div","kr-field");
+  const ulabel=document.createElement("label");ulabel.textContent="단위";
+  const uinput=document.createElement("input");uinput.type="text";uinput.value=kr.unit||"";
+  uinput.placeholder="명·개";uinput.style.width="52px";uinput.disabled=!!readOnly;
+  uinput.oninput=()=>{kr.unit=uinput.value;saveOkr();};
+  uinput.onblur=()=>renderOkrTool();
+  unitWrap.appendChild(ulabel);unitWrap.appendChild(uinput);
+  inputs.appendChild(unitWrap);
+
+  // 자신감 (진척과 다른 축이라 로즈색, 단위 옆에 컴팩트하게)
+  const confWrap=el("div","kr-field conf-field");
+  const clabel=document.createElement("label");clabel.textContent="자신감";
+  const crow=el("div","conf-input-row");
+  const cinput=document.createElement("input");
+  cinput.type="number";cinput.min="0";cinput.max="100";cinput.disabled=!!readOnly;
+  cinput.value=Math.max(0,Math.min(100,Number(kr.confidence)));
+  cinput.setAttribute("aria-label","자신감 퍼센트");
+  cinput.oninput=()=>{kr.confidence=Math.max(0,Math.min(100,Number(cinput.value)||0));saveOkr();};
+  cinput.onblur=()=>renderOkrTool();
+  const cpct=el("span","pct-suffix");cpct.textContent="%";
+  crow.appendChild(cinput);crow.appendChild(cpct);
+  confWrap.appendChild(clabel);confWrap.appendChild(crow);
+  inputs.appendChild(confWrap);
+
+  card.appendChild(inputs);
+
+  return card;
+}
+
+function numField(labelText,kr,key,readOnly){
+  const wrap=el("div","kr-field");
+  const label=document.createElement("label");label.textContent=labelText;
+  const input=document.createElement("input");
+  input.type="number";input.inputMode="decimal";input.value=kr[key];input.disabled=!!readOnly;
+  input.oninput=()=>{kr[key]=input.value;saveOkr();};
+  input.onblur=()=>{kr[key]=Number(input.value)||0;saveOkr();renderOkrTool();};
+  wrap.appendChild(label);wrap.appendChild(input);
+  return wrap;
+}
+
+function renderOkrEmpty(app,readOnly){
+  const e=el("div","empty");
+  e.innerHTML=
+    '<div class="ic"><svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">'+
+    '<defs><radialGradient id="eglow2" cx="0.5" cy="0.5" r="0.5">'+
+    '<stop offset="0" stop-color="#A9AEE0" stop-opacity="0.85"/>'+
+    '<stop offset="0.45" stop-color="#8B8FCB" stop-opacity="0.35"/>'+
+    '<stop offset="1" stop-color="#8B8FCB" stop-opacity="0"/></radialGradient></defs>'+
+    '<circle cx="28" cy="24" r="20" fill="url(#eglow2)"/>'+
+    '<circle cx="16" cy="34" r="2.2" fill="#B0B4E0"/>'+
+    '<circle cx="42" cy="36" r="2" fill="#B0B4E0"/>'+
+    '<line x1="16" y1="34" x2="28" y2="24" stroke="#B7BBDD" stroke-width="1.4"/>'+
+    '<line x1="28" y1="24" x2="42" y2="36" stroke="#B7BBDD" stroke-width="1.4"/>'+
+    '<circle cx="28" cy="24" r="4.4" fill="#7377B8"/>'+
+    '<circle cx="28" cy="24" r="2" fill="#F3F4FA"/></svg></div>'+
+    '<h2>'+(readOnly?"이 분기엔 별이 없었어요":"첫 별자리를 그려볼까요")+'</h2>'+
+    '<p>'+(readOnly?"목표를 세우지 않고 지나간 분기예요.":"목표 하나를 정하고, 그 아래 측정 가능한<br>핵심 결과를 별처럼 이어보세요.")+'</p>';
+  if(!readOnly){
+    const b=el("button","btn-primary");b.textContent="목표 만들기";
+    b.onclick=addObjective;
+    e.appendChild(b);
+  }
+  app.appendChild(e);
+}
+
+function addObjective(){
+  const cyc=activeCycle();
+  if(cyc.objectives.length>=3){
+    alert("목표는 최대 3개까지 세울 수 있어요. 정말 중요한 것에 집중하는 게 OKR의 핵심이에요.");
+    return;
+  }
+  const o={id:uid(),title:"",deadline:null,keyResults:[]};
+  cyc.objectives.push(o);cyc.active=o.id;viewingCycleId=null;saveOkr();renderOkrTool();
+  setTimeout(()=>{const t=document.querySelector(".goalhead .title");if(t)t.focus();},60);
+}
+
 
 function stoneEl(g,m,i,cls,isHere){
   const wrap=el("div",cls);
@@ -364,7 +1126,7 @@ function stoneEl(g,m,i,cls,isHere){
   // 노드 (클릭 = 완료 토글)
   const node=el("div","node");
   node.innerHTML = m.done?IC.check:(isHere?IC.lantern:IC.dot);
-  node.onclick=()=>{m.done=!m.done;if(m.done)m.expanded=false;save();render();};
+  node.onclick=()=>{m.done=!m.done;if(m.done)m.expanded=false;save();renderMilestoneTool();};
   wrap.appendChild(node);
 
   // 카드
@@ -386,11 +1148,11 @@ function stoneEl(g,m,i,cls,isHere){
   const branch=el("button","mini");
   const subDone=m.subs.filter(s=>s.done).length;
   branch.innerHTML=IC.branch+"<span>쪼개기"+(m.subs.length?" · "+subDone+"/"+m.subs.length:"")+"</span>";
-  branch.onclick=()=>{m.expanded=!m.expanded;save();render();};
+  branch.onclick=()=>{m.expanded=!m.expanded;save();renderMilestoneTool();};
   foot.appendChild(branch);
   // 삭제
   const del=el("button","mini m-del");del.textContent="삭제";
-  del.onclick=()=>{g.milestones=g.milestones.filter(x=>x.id!==m.id);save();render();};
+  del.onclick=()=>{g.milestones=g.milestones.filter(x=>x.id!==m.id);save();renderMilestoneTool();};
   foot.appendChild(del);
   card.appendChild(foot);
 
@@ -400,19 +1162,19 @@ function stoneEl(g,m,i,cls,isHere){
     const row=el("div","sub");
     const box=el("div","sbox"+(s.done?" on":""));
     box.innerHTML=s.done?IC.check:"";
-    box.onclick=()=>{s.done=!s.done;save();render();};
+    box.onclick=()=>{s.done=!s.done;save();renderMilestoneTool();};
     row.appendChild(box);
     const inp=document.createElement("input");
     inp.value=s.title;inp.placeholder="작은 행동";inp.className=s.done?"done":"";
     inp.oninput=()=>{s.title=inp.value;save();};
     row.appendChild(inp);
     const x=el("button","x");x.textContent="×";
-    x.onclick=()=>{m.subs=m.subs.filter(y=>y.id!==s.id);save();render();};
+    x.onclick=()=>{m.subs=m.subs.filter(y=>y.id!==s.id);save();renderMilestoneTool();};
     row.appendChild(x);
     subs.appendChild(row);
   });
   const sadd=el("button","sub-add");sadd.textContent="+ 작은 행동";
-  sadd.onclick=()=>{m.subs.push({id:uid(),title:"",done:false});save();render();
+  sadd.onclick=()=>{m.subs.push({id:uid(),title:"",done:false});save();renderMilestoneTool();
     setTimeout(()=>{const ins=subs.querySelectorAll("input");if(ins.length)ins[ins.length-1].focus();},50);};
   subs.appendChild(sadd);
   card.appendChild(subs);
@@ -422,7 +1184,8 @@ function stoneEl(g,m,i,cls,isHere){
 }
 
 // 기한 컨트롤 (참고선: 지나도 경고 없이 조용히)
-function deadlineControl(obj,isGoal){
+function deadlineControl(obj,isGoal,onSave,onRender){
+  onSave=onSave||save; onRender=onRender||renderMilestoneTool;
   const past=isPast(obj.deadline);
   const btn=el("button",isGoal?("deadline-btn"+(past?" past":"")):("mini dl"+(past?" past":"")));
   if(obj.deadline){
@@ -435,8 +1198,8 @@ function deadlineControl(obj,isGoal){
   const di=document.createElement("input");
   di.type="date";if(obj.deadline)di.value=obj.deadline;
   di.setAttribute("aria-label","기한 선택");
-  di.onchange=()=>{obj.deadline=di.value||null;save();render();};
-  di.oncontextmenu=(e)=>{e.preventDefault();obj.deadline=null;save();render();return false;};
+  di.onchange=()=>{obj.deadline=di.value||null;onSave();onRender();};
+  di.oncontextmenu=(e)=>{e.preventDefault();obj.deadline=null;onSave();onRender();return false;};
   btn.appendChild(di);
   return btn;
 }
@@ -464,7 +1227,7 @@ function renderEmpty(app){
 
 function addGoal(){
   const g={id:uid(),title:"",deadline:null,milestones:[]};
-  state.goals.push(g);state.active=g.id;save();render();
+  state.goals.push(g);state.active=g.id;save();renderMilestoneTool();
   setTimeout(()=>{const t=document.querySelector(".goalhead .title");if(t)t.focus();},60);
 }
 
@@ -472,12 +1235,30 @@ function addGoal(){
 function el(tag,cls){const e=document.createElement(tag);if(cls)e.className=cls;return e;}
 function autoGrow(t){t.style.height="auto";t.style.height=t.scrollHeight+"px";}
 
-load();render();
+load();loadOkr();loadApp();renderShell();
 
 // PWA
 if("serviceWorker" in navigator){
   window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("./sw_milestone.js").catch(()=>{});
+    navigator.serviceWorker.register("./sw_milestone.js").then(reg=>{
+      // 새 버전이 설치돼서 대기 중이면 바로 활성화하도록 신호
+      reg.addEventListener("updatefound",()=>{
+        const nw=reg.installing;
+        if(!nw)return;
+        nw.addEventListener("statechange",()=>{
+          if(nw.state==="installed" && navigator.serviceWorker.controller){
+            nw.postMessage({type:"SKIP_WAITING"});
+          }
+        });
+      });
+    }).catch(()=>{});
+  });
+  // 새 서비스워커가 주도권을 넘겨받으면 페이지를 한 번 새로고침해서 최신 반영
+  let refreshed=false;
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{
+    if(refreshed)return;
+    refreshed=true;
+    window.location.reload();
   });
 }
 </script>
